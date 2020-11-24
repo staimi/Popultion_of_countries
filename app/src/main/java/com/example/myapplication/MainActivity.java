@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -8,6 +9,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.JsonReader;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -38,6 +42,27 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     ArrayList<String> code = new ArrayList<>();
     ArrayList<String> name = new ArrayList<>();
+    Intent intent_gdp_rank_class;
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        intent_gdp_rank_class = new Intent(this, gdp_rank_class.class);
+
+        switch (item.getItemId()){
+            case R.id.gdp:
+                startActivity(intent_gdp_rank_class);
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         listView = findViewById(R.id.listView);
         countryCode();
         final Intent intent = new Intent(this, show_population.class);
+
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

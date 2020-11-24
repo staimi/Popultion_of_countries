@@ -20,7 +20,6 @@
         android:id="@+id/textViewDate1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
         android:layout_marginTop="30dp"
         android:text="TextView"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
