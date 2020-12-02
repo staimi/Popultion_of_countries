@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -43,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> code = new ArrayList<>();
     ArrayList<String> name = new ArrayList<>();
     Intent intent_gdp_rank_class;
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {

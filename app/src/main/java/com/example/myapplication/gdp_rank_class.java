@@ -2,11 +2,18 @@ package com.example.myapplication;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -18,21 +25,20 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class gdp_rank_class extends AppCompatActivity {
-    ListView recyclerView;
-    ArrayList<String> arrayList = new ArrayList<>();
-    ArrayAdapter<String> adapter;
 
+    ArrayList<String> arrayList = new ArrayList<>();
     ArrayList<data_organize> uploadData;
+    RecyclerView mRecyclerView;
+    RecyclerView.Adapter mAdapter;
+    RecyclerView.LayoutManager mLayoutManager;
+    ArrayList<example_item> gdpData;
 
 
     @Override
@@ -44,42 +50,55 @@ public class gdp_rank_class extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        recyclerView = findViewById(R.id.recyclerView);
+        setContentView(R.layout.activity_gdp_rank_class);
+        gdpData = new ArrayList<>();
+        mRecyclerView = findViewById(R.id.recyclerView);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
         getData gt = new getData();
         gt.execute();
+
+
+
+
+
     }
 
-    public void parseStringBuilder(StringBuilder mStringBuilder){
+    public void parseStringBuilder(StringBuilder mStringBuilder) {
         Log.d(" Info ", "parseStringBuilder: Started parsing.");
-        ArrayList<String> gdpData = new ArrayList<>();
-        // splits the sb into rows.
+        gdpData = new ArrayList<example_item>();
         String[] rows = mStringBuilder.toString().split(":");
 
         //Add to the ArrayList
-        for(int i=0; i<rows.length; i++) {
+        for (int i = 0; i < rows.length; i++) {
             //Split the columns of the rows
             String[] columns = rows[i].split(",");
 
             //use try catch to make sure there are no "" that try to parse into doubles.
-            try{
+            try {
                 String x = columns[0];
                 String y = columns[1];
 
-                String cell = i + " " + x + " " + y;
-                String cellInfo = "(x,y): ( "+ x +  "," + y + ")";
+                //String cell = i + " " + x + " " + y;
+                String cellInfo = "(x,y): ( " + x + "," + y + ")";
 
                 //add the the uploadData ArrayList
-                gdpData.add(cell);
+                this.gdpData.add(new example_item(x, y));
                 //uploadData.add(new data_organize(x, y));
-
-            }catch (NumberFormatException e){
-
+            } catch (NumberFormatException e) {
                 Log.e("  eeeee ", "parseStringBuilder: NumberFormatException: " + e.getMessage());
-
             }
+
         }
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, gdpData);
-        recyclerView.setAdapter(adapter);
+        for(int i = 0; i < 30; i++){
+            Log.i(" gdpppp ", String.valueOf(gdpData.get(i)));
+        }
+       try {
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -103,7 +122,6 @@ public class gdp_rank_class extends AppCompatActivity {
                     }else{
                         String value = getCellAsString(row, c, formulaEvaluator);
                         sb.append(value + ",");
-                        //Log.i("Value ", value);
                     }
                 }
                 sb.append(":");
@@ -127,7 +145,7 @@ public class gdp_rank_class extends AppCompatActivity {
             switch (cellValue.getCellType()) {
                 case Cell.CELL_TYPE_BOOLEAN:
                     value = ""+cellValue.getBooleanValue();
-                    //Log.i(" Boolean", value);
+
                     break;
                 case Cell.CELL_TYPE_NUMERIC:
                     double numericValue = cellValue.getNumberValue();
@@ -138,7 +156,7 @@ public class gdp_rank_class extends AppCompatActivity {
                         value = formatter.format(HSSFDateUtil.getJavaDate(date));
                     } else {
                         value = ""+numericValue;
-                        //Log.i(" Numeric ", value);
+
                     }
                     break;
                 case Cell.CELL_TYPE_STRING:
@@ -148,7 +166,7 @@ public class gdp_rank_class extends AppCompatActivity {
                     break;
                 default:
             }
-            //recyclerView.setAdapter(adapter);
+
         } catch (NullPointerException e) {
 
             Log.i(" Info ", "getCellAsString: NullPointerException: " + e.getMessage() );
@@ -163,15 +181,19 @@ public class gdp_rank_class extends AppCompatActivity {
             readExcelData();
             return null;
         }
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
         }
-
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            mAdapter = new recycler_adapter(gdpData);
+            if (gdpData.size() > 0) {
+                mRecyclerView.setAdapter(mAdapter);
+            }else{
+                Log.i("GdpData ArrayList ", " is empty");
+            }
         }
     }
 
