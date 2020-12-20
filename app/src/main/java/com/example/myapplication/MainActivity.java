@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> code = new ArrayList<>();
     ArrayList<String> name = new ArrayList<>();
     Intent intent_gdp_rank_class;
+    Intent intent_debt_class;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -51,10 +52,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         intent_gdp_rank_class = new Intent(this, gdp_rank_class.class);
+        intent_debt_class = new Intent(this, debt_class.class);
 
         switch (item.getItemId()){
             case R.id.gdp:
                 startActivity(intent_gdp_rank_class);
+            case R.id.debt:
+                startActivity(intent_debt_class);
+
         }
 
         return super.onOptionsItemSelected(item);

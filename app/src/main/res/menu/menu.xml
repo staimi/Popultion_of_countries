@@ -8,6 +8,9 @@
     <item android:id="@+id/gdp"
         android:title="GDP Rank"
         app:showAsAction="never"/>
+    <item android:id="@+id/debt"
+        android:title="Debt of top 5 countries"
+        app:showAsAction="never"/>
 
 
 

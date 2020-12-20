@@ -1,24 +1,22 @@
 package com.example.myapplication;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
@@ -32,44 +30,62 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-public class gdp_rank_class extends AppCompatActivity {
-    ProgressDialog progressDialog;
-    ArrayList<String> arrayList = new ArrayList<>();
-    RecyclerView mRecyclerView;
-    RecyclerView.Adapter mAdapter;
-    RecyclerView.LayoutManager mLayoutManager;
-    ArrayList<example_item> gdpData;
+public class debt_class extends AppCompatActivity {
 
+    ArrayList<String> arrayList = new ArrayList<>();
+    ArrayList<example_item> debt_data = new ArrayList<>();
+    String[] rows;
+    ListView listViewDebt;
+    TextView name_of_country;
+
+    void setArrayListElements(){
+        String top_5_countries[] = {"France","Germany","Italy","Japan","Untied Kingdom","United States"};
+
+        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1 , top_5_countries);
+        listViewDebt.setAdapter(adapter);
+    }
 
     @Override
     public void onBackPressed() {
         finish();
         super.onBackPressed();
     }
-
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_gdp_rank_class);
-        gdpData = new ArrayList<>();
-        mRecyclerView = findViewById(R.id.recyclerView);
-        mRecyclerView.setHasFixedSize(true);
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        getData gt = new getData();
-        gt.execute();
+        setContentView(R.layout.activity_debt_class);
+        listViewDebt = findViewById(R.id.list_view_debt);
+        name_of_country = findViewById(R.id.nameOfCountry);
 
+        setArrayListElements();
 
+        new getDebtData().execute();
 
+        listViewDebt.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                for (int a = 0; a < rows.length; a++) {
+                    //Split the columns of the rows
+                    String[] columns = rows[i].split(",");
+                    String[] columns_data = new String[columns.length];
+                    for(int t= 0; t < columns.length; t++){
+                    columns_data[a] = columns[a];
+                    }
+                    if(a == 0){
+                        name_of_country.setText(columns_data[0]);
+                    }
+                }
 
+            }
+        });
 
     }
 
     private void readExcelData(){
         try {
-            InputStream in = getAssets().open("gdp_excel.xlsx");
-            XSSFWorkbook workbook = new XSSFWorkbook(in);
-            XSSFSheet sheet = workbook.getSheetAt(0);
+            InputStream in = getAssets().open("top_5_countries_debt.xls");
+            HSSFWorkbook workbook = new HSSFWorkbook(in);
+            HSSFSheet sheet = workbook.getSheetAt(0);
             int rowCount = sheet.getPhysicalNumberOfRows();
             FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
             StringBuilder sb = new StringBuilder();
@@ -79,13 +95,9 @@ public class gdp_rank_class extends AppCompatActivity {
                 int cellsCount = row.getPhysicalNumberOfCells();
 
                 for (int c = 0; c < cellsCount; c++){
-                    if(c > 2){
-                        Log.i("Excel ", "Error");
-                        break;
-                    }else{
                         String value = getCellAsString(row, c, formulaEvaluator);
                         sb.append(value + ",");
-                    }
+                        Log.i("Data : ", value);
                 }
                 sb.append(":");
             }
@@ -98,47 +110,33 @@ public class gdp_rank_class extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    ////////////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////
     public void parseStringBuilder(StringBuilder mStringBuilder) {
         Log.d(" Info ", "parseStringBuilder: Started parsing.");
-        gdpData = new ArrayList<example_item>();
-        String[] rows = mStringBuilder.toString().split(":");
+        this.rows = mStringBuilder.toString().split(":");
 
         //Add to the ArrayList
         for (int i = 0; i < rows.length; i++) {
             //Split the columns of the rows
             String[] columns = rows[i].split(",");
+            String[] columns_data = new String[columns.length];
 
-            //use try catch to make sure there are no "" that try to parse into doubles.
+            //use try catch to make sure there are no "" that try to parse into strings.
             try {
-                String x = columns[0];
-                String y = columns[1];
-
-                //String cell = i + " " + x + " " + y;
-                String cellInfo = "(x,y): ( " + x + "," + y + ")";
-
-                //add the the uploadData ArrayList
-
-                this.gdpData.add(new example_item(x, y));
-
+                for(int j = 0; j < columns.length; j++){
+                    columns_data[i] = columns[i];
+                }
             } catch (NumberFormatException e) {
                 Log.e("  eeeee ", "parseStringBuilder: NumberFormatException: " + e.getMessage());
             }
 
         }
-        for(int i = 0; i < 30; i++){
-            Log.i(" gdpppp ", String.valueOf(gdpData.get(i)));
-        }
-       try {
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
-////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////////////
     private String getCellAsString(Row row, int c, FormulaEvaluator formulaEvaluator) {
 
         String value = "";
@@ -176,8 +174,8 @@ public class gdp_rank_class extends AppCompatActivity {
         }
         return value;
     }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public class getData extends AsyncTask<String, String, String>{
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public class getDebtData extends AsyncTask<String, String, String>{
 
         @Override
         protected String doInBackground(String... strings) {
@@ -187,20 +185,10 @@ public class gdp_rank_class extends AppCompatActivity {
         }
         @Override
         protected void onPreExecute() {
-            //super.onPreExecute();
-            progressDialog = ProgressDialog.show(gdp_rank_class.this, "Please wait...", "Load data", true);
-            progressDialog.setCancelable(true);
         }
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            mAdapter = new recycler_adapter(gdpData);
-            if (gdpData.size() > 0) {
-                mRecyclerView.setAdapter(mAdapter);
-            }else{
-                Log.i("GdpData ArrayList ", " is empty");
-            }
-            progressDialog.cancel();
         }
     }
 
