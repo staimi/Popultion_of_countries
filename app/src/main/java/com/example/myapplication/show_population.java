@@ -1,17 +1,18 @@
 package com.example.myapplication;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
-import android.graphics.Paint;
+import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.DropBoxManager;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.android.volley.Cache;
+import androidx.appcompat.app.AppCompatActivity;
+
+//import com.softmoore.android.graphlib.*;
+
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -23,37 +24,33 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.KeyStore;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
+import static java.lang.Math.sin;
+
 public class show_population extends AppCompatActivity {
-    String countryCode, countryName;
-    GraphView graph;
-    TextView textViewDate1, textViewDate2, textViewDate3, nameOfCountry;
+    String countryCode;
+
     @Override
     public void onBackPressed() {
         finish();
         super.onBackPressed();
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_population);
-        textViewDate1 = findViewById(R.id.textViewDate1);
-        textViewDate2 = findViewById(R.id.textViewDate2);
-        textViewDate3 = findViewById(R.id.textViewDate3);
-        nameOfCountry = findViewById(R.id.nameOfCountry);
 
         // get data
+
         Bundle extras = getIntent().getExtras();
         if (extras != null)
         {
             countryCode = extras.getString("getCountryCode");
-            nameOfCountry.setText(extras.getString("getCountryName"));
         }
         else
         {
@@ -61,17 +58,18 @@ public class show_population extends AppCompatActivity {
         }
         // download
         Log.i("Get country code: ", countryCode);
-        new populationDataDownload().execute("http://api.worldbank.org/v2/country/"+countryCode+"/indicator/sp.pop.totl?format=json");
-
-        graph = (GraphView) findViewById(R.id.graph);
+        new populationDataDownload().execute("http://api.worldbank.org/v2/country/" + countryCode + "/indicator/sp.pop.totl?format=json");
 
     }
     public class populationDataDownload extends AsyncTask<String, Void, String>{
-        String result= "";
-        List<Integer> valDates = new ArrayList<>();
-        List<Integer> dateDates = new ArrayList<>();
+
+        List<Double> valDates = new ArrayList<>();
+        List<Double> dateDates = new ArrayList<>();
+        ///Point[] points;
+
         @Override
         protected String doInBackground(String... urls) {
+            String result= "";
             try {
 
                 URL url = new URL(urls[0]);
@@ -86,15 +84,17 @@ public class show_population extends AppCompatActivity {
                     while (scanner.hasNext()){
                         result+=scanner.nextLine();
                     }
+                    Log.i("Result doInBackground: ", result);
                     scanner.close();
                 }
                 return result;
 
             } catch (IOException e) {
                 e.printStackTrace();
-            }finally {
-
+                Toast.makeText(show_population.this, "Error ", Toast.LENGTH_SHORT).show();
+                finish();
             }
+
             return null;
         }
 
@@ -110,45 +110,35 @@ public class show_population extends AppCompatActivity {
                     String value = jsonObject.getString("value");
                     String date = jsonObject.getString("date");
 
-                    this.valDates.add(Integer.parseInt(value));
-                    this.dateDates.add(Integer.parseInt(date));
+                    this.valDates.add(Double.parseDouble(value));
+                    this.dateDates.add(Double.parseDouble(date));
+
                 }
 
 
-
                 if(dateDates.size() > 0){
-                    LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
-                    List<Integer> valDatesConverted = new ArrayList<>();
-                    int midleValueofDateListSize;
 
-                    if(dateDates.size()%2 == 0){
-                        midleValueofDateListSize = dateDates.size() / 2;
-                    }else{
-                        midleValueofDateListSize = (dateDates.size() - 1) / 2;
-                    }
+                    DataPoint[] values = new DataPoint[valDates.size()];
+                    int arraySize = dateDates.size() - 1;
+                    Log.i("aarrrrr  ", String.valueOf(arraySize));
+                    int j = 0;
+                     for(int i = arraySize; i >= 0 ;i--){
 
-                    textViewDate3.setText(dateDates.get(dateDates.size()-1).toString());
-                    textViewDate2.setText(dateDates.get(midleValueofDateListSize).toString());
-                    textViewDate1.setText(dateDates.get(0).toString());
+                         DataPoint v = new DataPoint(dateDates.get(i), valDates.get(i));
+                         values[j] = v;
+                         j++;
+                         Log.i("DataPoint  ", String.valueOf(dateDates.get(i) + " " + valDates.get(i)) + " Wartość i : " + i);
+                     }
 
-                    Collections.sort(dateDates);
-                    for (int i = 0; i < valDates.size(); i++){
-                        series.appendData(new DataPoint(i ,valDates.get(i)), false, dateDates.size());
-                    }
+                    GraphView graph = (GraphView) findViewById(R.id.graph);
+                    LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(values);
                     graph.addSeries(series);
-                    series.setTitle("Population");
-                    series.setColor(Color.GREEN);
-                    series.setDrawDataPoints(true);
-                    series.setDataPointsRadius(10);
-                    series.setThickness(3);
 
-                    // custom paint to make a dotted line
-                    Paint paint = new Paint();
-                    paint.setStyle(Paint.Style.STROKE);
-                    paint.setStrokeWidth(8);
-                    paint.setPathEffect(new DashPathEffect(new float[]{jsonArray.length(), jsonArray.length()}, 0));
-                    //series2.setCustomPaint(paint);
                     super.onPostExecute(result);}
+                else{
+                    Toast.makeText(show_population.this, "No data ", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }

@@ -43,23 +43,18 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     ArrayList<String> code = new ArrayList<>();
     ArrayList<String> name = new ArrayList<>();
-    Intent intent_gdp_rank_class;
-    Intent intent_debt_class;
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        intent_gdp_rank_class = new Intent(this, gdp_rank_class.class);
-        intent_debt_class = new Intent(this, debt_class.class);
 
         switch (item.getItemId()){
             case R.id.gdp:
-                startActivity(intent_gdp_rank_class);
+                startActivity(new Intent(this, gdp_rank_class.class));
+                break;
             case R.id.debt:
-                startActivity(intent_debt_class);
-
+                startActivity(new Intent(this, debt_class.class));
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -77,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        listView = findViewById(R.id.listView);
+        listView = findViewById(R.id.listViewMain);
         countryCode();
         final Intent intent = new Intent(this, show_population.class);
 
@@ -101,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
             in.close();
             codes = new String(buffer);
             JSONArray jsonArray = new JSONArray(codes);
-            for (int i = 0; jsonArray.length() > i; i++){
+            for (int i = 0; jsonArray.length() > i; i++) {
                 JSONObject jo = jsonArray.getJSONObject(i);
                 code.add(jo.getString("Code"));
                 name.add(jo.getString("Name"));

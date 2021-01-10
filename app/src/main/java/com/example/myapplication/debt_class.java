@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
@@ -33,10 +35,13 @@ import java.util.ArrayList;
 public class debt_class extends AppCompatActivity {
 
     ArrayList<String> arrayList = new ArrayList<>();
-    ArrayList<example_item> debt_data = new ArrayList<>();
     String[] rows;
     ListView listViewDebt;
     TextView name_of_country;
+    RecyclerView mRecyclerView;
+    RecyclerView.Adapter mAdapter;
+    RecyclerView.LayoutManager mLayoutManager;
+    ArrayList<example_item> debt_data;
 
     void setArrayListElements(){
         String top_5_countries[] = {"France","Germany","Italy","Japan","Untied Kingdom","United States"};
@@ -57,6 +62,13 @@ public class debt_class extends AppCompatActivity {
         listViewDebt = findViewById(R.id.list_view_debt);
         name_of_country = findViewById(R.id.nameOfCountry);
 
+        debt_data = new ArrayList<>();
+        mRecyclerView =(RecyclerView) findViewById(R.id.recyclerViewDebt);
+        //mRecyclerView.setHasFixedSize(true);
+        mAdapter = new recycler_adapter(debt_data);
+        mLayoutManager = new LinearLayoutManager(this);
+
+
         setArrayListElements();
 
         new getDebtData().execute();
@@ -64,18 +76,29 @@ public class debt_class extends AppCompatActivity {
         listViewDebt.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                for (int a = 0; a < rows.length; a++) {
                     //Split the columns of the rows
+
                     String[] columns = rows[i].split(",");
                     String[] columns_data = new String[columns.length];
-                    for(int t= 0; t < columns.length; t++){
+                    for(int a= 0; a < columns.length; a++){
                     columns_data[a] = columns[a];
-                    }
-                    if(a == 0){
-                        name_of_country.setText(columns_data[0]);
-                    }
-                }
 
+                        Log.i("Columns  ", columns_data[a]);
+                        if(a == 0){
+                            name_of_country.setText(columns_data[0]);
+                        }else{
+                            String date = String.valueOf(1949 + a);
+                            debt_data.add(new example_item(columns_data[a], date));
+                        }
+                    }
+
+                mRecyclerView.setLayoutManager(mLayoutManager);
+                if (debt_data.size() > 0) {
+                    mRecyclerView.setAdapter(mAdapter);
+                }else{
+                    Log.i("ArrayList ", " is empty");
+                }
+                listViewDebt.setAlpha(0);
             }
         });
 

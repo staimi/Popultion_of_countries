@@ -51,18 +51,15 @@ public class gdp_rank_class extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gdp_rank_class);
+
         gdpData = new ArrayList<>();
         mRecyclerView = findViewById(R.id.recyclerView);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
+
         getData gt = new getData();
         gt.execute();
-
-
-
-
-
     }
 
     private void readExcelData(){
