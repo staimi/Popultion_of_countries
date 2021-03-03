@@ -4,12 +4,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/logo_transparent"
     tools:context=".gdp_rank_class">
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="80dp"
         android:padding="4dp"
-        android:scrollbars="vertical"/>
+        android:scrollbars="vertical" />
+
+    <TextView
+        android:id="@+id/textViewGDP"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:gravity="center"
+        android:text="Gross domestic product in 2019 (millions of US dollars)"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 </RelativeLayout>

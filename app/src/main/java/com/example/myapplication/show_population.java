@@ -1,7 +1,12 @@
 package com.example.myapplication;
 
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -32,6 +37,7 @@ import static java.lang.Math.sin;
 
 public class show_population extends AppCompatActivity {
     String countryCode;
+    TextView textViewGraph;
 
     @Override
     public void onBackPressed() {
@@ -39,11 +45,25 @@ public class show_population extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    public boolean internetIsConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_population);
+
+        this.internetIsConnected();
+
+        textViewGraph = findViewById(R.id.textViewGraph);
 
         // get data
 
@@ -58,14 +78,31 @@ public class show_population extends AppCompatActivity {
         }
         // download
         Log.i("Get country code: ", countryCode);
-        new populationDataDownload().execute("http://api.worldbank.org/v2/country/" + countryCode + "/indicator/sp.pop.totl?format=json");
+
+        textViewGraph.setText(extras.getString("getCountryName"));
+
+        // check internet connection
+
+        if(this.internetIsConnected()) {
+            try{
+            new populationDataDownload().execute("http://api.worldbank.org/v2/country/" + countryCode + "/indicator/sp.pop.totl?format=json");}
+            catch (Exception e){
+                e.printStackTrace();
+                startActivity(new Intent(this, demography.class));
+                finish();
+            }
+        }
+        else {
+            Toast.makeText(this, " No internet connection ", Toast.LENGTH_SHORT).show();
+            finish();
+        }
 
     }
     public class populationDataDownload extends AsyncTask<String, Void, String>{
 
+        ProgressDialog progressDialog;
         List<Double> valDates = new ArrayList<>();
         List<Double> dateDates = new ArrayList<>();
-        ///Point[] points;
 
         @Override
         protected String doInBackground(String... urls) {
@@ -99,6 +136,13 @@ public class show_population extends AppCompatActivity {
         }
 
         @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(show_population.this, "Please wait...", "Load data", true);
+            progressDialog.setCancelable(true);
+            super.onPreExecute();
+        }
+
+        @Override
         protected void onPostExecute(String result) {
 
             try {
@@ -120,7 +164,7 @@ public class show_population extends AppCompatActivity {
 
                     DataPoint[] values = new DataPoint[valDates.size()];
                     int arraySize = dateDates.size() - 1;
-                    Log.i("aarrrrr  ", String.valueOf(arraySize));
+                    Log.i("array  ", String.valueOf(arraySize));
                     int j = 0;
                      for(int i = arraySize; i >= 0 ;i--){
 
@@ -141,8 +185,11 @@ public class show_population extends AppCompatActivity {
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
+                Toast.makeText(show_population.this, " No data ", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), main_menu.class));
+                finish();
             }
-
+            progressDialog.cancel();
             
         }
 

@@ -5,11 +5,17 @@
     <item android:id="@+id/menu"
         android:title="Menu"
         app:showAsAction="ifRoom"/>
-    <item android:id="@+id/gdp"
-        android:title="GDP Rank"
+    <item android:id="@+id/item_1"
+        android:title=""
         app:showAsAction="never"/>
-    <item android:id="@+id/debt"
-        android:title="Debt of top 5 countries"
+    <item android:id="@+id/item_2"
+        android:title=""
+        app:showAsAction="never"/>
+    <item android:id="@+id/item_3"
+        android:title=""
+        app:showAsAction="never"/>
+    <item android:id="@+id/item_4"
+        android:title=""
         app:showAsAction="never"/>
 </menu>
 

@@ -3,6 +3,7 @@
     package="com.example.myapplication">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -11,13 +12,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <activity android:name=".debt_class"/>
+        <activity android:name=".demography"></activity>
+        <activity android:name=".textEditor" />
+        <activity android:name=".main_menu" />
+        <activity android:name=".notes" />
+        <activity android:name=".Menu" />
+        <activity android:name=".login_activity" />
+        <activity android:name=".debt_class" />
         <activity android:name=".gdp_rank_class" />
         <activity android:name=".show_population" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

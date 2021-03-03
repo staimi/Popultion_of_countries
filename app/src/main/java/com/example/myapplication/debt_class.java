@@ -1,10 +1,15 @@
 package com.example.myapplication;
 
 import android.app.ProgressDialog;
+import android.content.ClipData;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -12,6 +17,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -43,6 +49,48 @@ public class debt_class extends AppCompatActivity {
     RecyclerView.LayoutManager mLayoutManager;
     ArrayList<example_item> debt_data;
 
+    ////////////////////////////////////////////
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.item_1:
+                startActivity(new Intent(this, demography.class));
+                break;
+            case R.id.item_2:
+                startActivity(new Intent(this, gdp_rank_class.class));
+                break;
+            case  R.id.item_3:
+                startActivity(new Intent(this, main_menu.class));
+                break;
+            case R.id.item_4:
+                startActivity(new Intent(this, notes.class));
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater2 = getMenuInflater();
+        inflater2.inflate(R.menu.menu, menu);
+
+        MenuItem item_population = menu.findItem(R.id.item_1);
+        MenuItem item_gdp = menu.findItem(R.id.item_2);
+        MenuItem item_menu = menu.findItem(R.id.item_3);
+        MenuItem item_notes =menu.findItem(R.id.item_4);
+
+        item_population.setTitle("Population of Countries");
+        item_gdp.setTitle("Debt of Countries");
+        item_menu.setTitle("Main menu");
+        item_notes.setTitle("Notes");
+
+        return true;
+    }
+
+    /////////////////////////////////////////////
+
     void setArrayListElements(){
         String top_5_countries[] = {"France","Germany","Italy","Japan","Untied Kingdom","United States"};
 
@@ -53,8 +101,10 @@ public class debt_class extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         finish();
+        startActivity(new Intent(this, main_menu.class));
         super.onBackPressed();
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +114,6 @@ public class debt_class extends AppCompatActivity {
 
         debt_data = new ArrayList<>();
         mRecyclerView =(RecyclerView) findViewById(R.id.recyclerViewDebt);
-        //mRecyclerView.setHasFixedSize(true);
         mAdapter = new recycler_adapter(debt_data);
         mLayoutManager = new LinearLayoutManager(this);
 
@@ -76,7 +125,7 @@ public class debt_class extends AppCompatActivity {
         listViewDebt.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    //Split the columns of the rows
+                    //Split the columns
 
                     String[] columns = rows[i].split(",");
                     String[] columns_data = new String[columns.length];
@@ -97,6 +146,7 @@ public class debt_class extends AppCompatActivity {
                     mRecyclerView.setAdapter(mAdapter);
                 }else{
                     Log.i("ArrayList ", " is empty");
+                    Toast.makeText(debt_class.this, "No data", Toast.LENGTH_SHORT).show();
                 }
                 listViewDebt.setAlpha(0);
             }
@@ -141,11 +191,10 @@ public class debt_class extends AppCompatActivity {
 
         //Add to the ArrayList
         for (int i = 0; i < rows.length; i++) {
-            //Split the columns of the rows
+            //Split the columns
             String[] columns = rows[i].split(",");
             String[] columns_data = new String[columns.length];
 
-            //use try catch to make sure there are no "" that try to parse into strings.
             try {
                 for(int j = 0; j < columns.length; j++){
                     columns_data[i] = columns[i];
@@ -186,7 +235,6 @@ public class debt_class extends AppCompatActivity {
                 case Cell.CELL_TYPE_STRING:
                     value = ""+cellValue.getStringValue();
                     arrayList.add(cellValue.getStringValue());
-                    //Log.i(" String ", value);
                     break;
                 default:
             }
@@ -199,6 +247,7 @@ public class debt_class extends AppCompatActivity {
     }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public class getDebtData extends AsyncTask<String, String, String>{
+        ProgressDialog progressDialog;
 
         @Override
         protected String doInBackground(String... strings) {
@@ -208,9 +257,12 @@ public class debt_class extends AppCompatActivity {
         }
         @Override
         protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(debt_class.this, "Please wait...", "Load data", true);
+            progressDialog.setCancelable(true);
         }
         @Override
         protected void onPostExecute(String s) {
+            progressDialog.cancel();
             super.onPostExecute(s);
         }
     }

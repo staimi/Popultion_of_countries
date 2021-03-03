@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -8,15 +9,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
@@ -40,10 +46,51 @@ public class gdp_rank_class extends AppCompatActivity {
     RecyclerView.LayoutManager mLayoutManager;
     ArrayList<example_item> gdpData;
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.item_1:
+                startActivity(new Intent(this, demography.class));
+                break;
+            case R.id.item_2:
+                startActivity(new Intent(this, debt_class.class));
+                break;
+            case  R.id.item_3:
+                startActivity(new Intent(this, main_menu.class));
+                break;
+            case R.id.item_4:
+                startActivity(new Intent(this, notes.class));
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater1 = getMenuInflater();
+        inflater1.inflate(R.menu.menu, menu);
+
+        MenuItem item_population = menu.findItem(R.id.item_1);
+        MenuItem item_debt = menu.findItem(R.id.item_2);
+        MenuItem item_menu = menu.findItem(R.id.item_3);
+        MenuItem item_notes =menu.findItem(R.id.item_4);
+
+        item_population.setTitle("Population of Countries");
+        item_debt.setTitle("Debt of Countries");
+        item_menu.setTitle("Main menu");
+        item_notes.setTitle("Notes");
+
+        return true;
+    }
+
+
+
 
     @Override
     public void onBackPressed() {
         finish();
+        startActivity(new Intent(this, main_menu.class));
         super.onBackPressed();
     }
 
@@ -91,8 +138,14 @@ public class gdp_rank_class extends AppCompatActivity {
             parseStringBuilder(sb);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            Toast.makeText(this, "Error, try again", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(getApplicationContext(), main_menu.class));
+            finish();
         } catch (IOException e) {
             e.printStackTrace();
+            Toast.makeText(this, "Error, try again", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(getApplicationContext(), main_menu.class));
+            finish();
         }
     }
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -104,33 +157,22 @@ public class gdp_rank_class extends AppCompatActivity {
 
         //Add to the ArrayList
         for (int i = 0; i < rows.length; i++) {
-            //Split the columns of the rows
+            //Split the columns
             String[] columns = rows[i].split(",");
 
-            //use try catch to make sure there are no "" that try to parse into doubles.
             try {
                 String x = columns[0];
                 String y = columns[1];
 
-                //String cell = i + " " + x + " " + y;
-                String cellInfo = "(x,y): ( " + x + "," + y + ")";
-
-                //add the the uploadData ArrayList
-
                 this.gdpData.add(new example_item(x, y));
 
             } catch (NumberFormatException e) {
-                Log.e("  eeeee ", "parseStringBuilder: NumberFormatException: " + e.getMessage());
+                Log.e("info ", "parseStringBuilder: NumberFormatException: " + e.getMessage());
             }
 
         }
         for(int i = 0; i < 30; i++){
             Log.i(" gdpppp ", String.valueOf(gdpData.get(i)));
-        }
-       try {
-
-        }catch (Exception e){
-            e.printStackTrace();
         }
     }
 
@@ -184,7 +226,7 @@ public class gdp_rank_class extends AppCompatActivity {
         }
         @Override
         protected void onPreExecute() {
-            //super.onPreExecute();
+
             progressDialog = ProgressDialog.show(gdp_rank_class.this, "Please wait...", "Load data", true);
             progressDialog.setCancelable(true);
         }
@@ -195,7 +237,9 @@ public class gdp_rank_class extends AppCompatActivity {
             if (gdpData.size() > 0) {
                 mRecyclerView.setAdapter(mAdapter);
             }else{
+                Toast.makeText(gdp_rank_class.this, "No data", Toast.LENGTH_SHORT).show();
                 Log.i("GdpData ArrayList ", " is empty");
+                finish();
             }
             progressDialog.cancel();
         }
