@@ -1,5 +1,6 @@
 # Popultion_of_countries
 
+# Splasch screen
 ![alt text](https://github.com/staimi/Popultion_of_countries/blob/master/Unbenannt.png)
 ![alt-text](https://github.com/staimi/Popultion_of_countries/blob/master/load.png)
 ![alt text](https://github.com/staimi/Popultion_of_countries/blob/master/menu.png)
